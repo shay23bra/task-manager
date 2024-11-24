@@ -225,5 +225,7 @@ Run frontend tests using **Jest** and **React Testing Library**.
    - Use newer versions of packages and dependencies, remove deprecated ones.
 6. **Build and Deployment**:
     - Use multi-platform build for Docker images - to support both arm64 and amd64.
+7. **UI design**:
+    - Improve the UI design and add more features like drag-and-drop tasks.
 
 ---
