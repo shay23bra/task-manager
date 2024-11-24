@@ -63,7 +63,7 @@ frontend/
 
 ---
 
-## **Setup Instructions**
+## **Setup Dev Environment Instructions**
 
 ### **Backend**
 
