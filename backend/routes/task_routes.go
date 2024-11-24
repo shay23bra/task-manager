@@ -26,7 +26,7 @@ func RegisterTaskRoutes(r *gin.Engine, db *gorm.DB) {
 		c.JSON(200, task)
 	})
 
-	r.GET("/tasks/:id", func(c *gin.Context) { // TODO: check if needed?
+	r.GET("/tasks/:id", func(c *gin.Context) {
 		var task models.Task
 		if err := db.First(&task, c.Param("id")).Error; err != nil {
 			c.JSON(404, gin.H{"error": "Task not found"})
@@ -42,17 +42,6 @@ func RegisterTaskRoutes(r *gin.Engine, db *gorm.DB) {
 			return
 		}
 		c.JSON(200, tasks)
-	})
-
-	r.PUT("/tasks/:id", func(c *gin.Context) { // TODO: check if needed?
-		var task models.Task
-		if err := db.First(&task, c.Param("id")).Error; err != nil {
-			c.JSON(404, gin.H{"error": "Task not found"})
-			return
-		}
-		c.ShouldBindJSON(&task)
-		db.Save(&task)
-		c.JSON(200, task)
 	})
 
 	r.PUT("/tasks/:id/status", func(c *gin.Context) {

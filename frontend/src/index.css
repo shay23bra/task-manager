@@ -208,11 +208,14 @@ li {
   white-space: nowrap;
   cursor: pointer;
   max-width: 100%;
+  transition: all 0.5s ease;
 }
 
 .task-description.expanded {
   white-space: normal;
   overflow: visible;
+  max-width: 100%;
+  word-wrap: break-word;
 }
 
 .delete-button {
