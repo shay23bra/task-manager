@@ -39,6 +39,7 @@ backend/
 │   └── task.go        # Task model definition
 ├── routes/
 │   └── tasks.go       # API routes for task management
+├── Dockerfile         # Dockerfile for backend service
 ```
 
 ### **Frontend**
@@ -57,6 +58,7 @@ frontend/
 │   │   ├── Task.js     # Task component for displaying individual tasks
 │   │   └── TaskList.js # TaskList component for displaying all tasks
 ├── package.json       # NPM configuration and dependencies
+├── Dockerfile         # Dockerfile for frontend service
 ```
 
 ---
@@ -119,6 +121,117 @@ frontend/
 
 ---
 
+## **Docker Deployment**
+
+This project is fully containerized using Docker.
+
+### **Steps to Run Using Docker Compose**
+
+1. **Build and Start the Services**:
+   In the root directory of the project (where `docker-compose.yml` is located), run:
+   ```bash
+   docker-compose up --build
+   ```
+
+2. **Access the Services**:
+   - Frontend: [http://localhost:3000](http://localhost:3000)
+   - Backend: [http://localhost:8080](http://localhost:8080)
+
+3. **Stop the Services**:
+   ```bash
+   docker-compose down
+   ```
+
+---
+
+## **CI/CD Pipeline**
+
+A CI/CD pipeline is implemented using GitHub Actions.
+
+### **Pipeline Workflow**
+
+1. **Trigger**:
+   - The pipeline runs on every pull request to the `main` branch and on direct pushes to the `main` branch.
+
+2. **Stages**:
+   - **Testing**:
+     - Runs backend tests using `go test`.
+     - Runs frontend tests using `npm test`.
+   - **Linting**:
+     - Lints the backend code with `go vet`.
+     - Lints the frontend code with `npm run lint`.
+   - **Build**:
+     - Builds Docker images for the backend and frontend.
+
+### **File: .github/workflows/ci.yml**
+The CI pipeline is defined in `.github/workflows/ci.yml` and includes:
+
+```yaml
+name: CI Pipeline
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.20
+
+      - name: Run Backend Tests
+        working-directory: backend
+        run: go test ./... -v
+
+      - name: Lint Backend
+        working-directory: backend
+        run: go vet ./...
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Frontend Dependencies
+        working-directory: frontend
+        run: npm install
+
+      - name: Lint Frontend
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Test Frontend
+        working-directory: frontend
+        run: npm test -- --watchAll=false
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: test-and-lint
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Build Backend Docker Image
+        working-directory: backend
+        run: docker build -t task-manager-backend .
+
+      - name: Build Frontend Docker Image
+        working-directory: frontend
+        run: docker build -t task-manager-frontend .
+```
+
+---
+
 ## **Testing**
 
 ### **Backend Testing**
@@ -141,27 +254,6 @@ Run frontend tests using **Jest** and **React Testing Library**.
    - Test if tasks are correctly displayed.
    - Test if new tasks are added successfully.
    - Test if dropdown animations and status changes work.
-
----
-
-## **Components**
-
-### **Frontend Components**
-1. **`App.jsx`**:
-   - Main React component managing task list, dropdowns, and API interactions.
-2. **`api/tasks.js`**:
-   - Contains API methods (`getTasks`, `createTask`, `updateTaskStatus`, `deleteTask`) to communicate with the backend.
-3. **`styles/index.css`**:
-   - Handles application-wide styling.
-
-### **Backend Components**
-1. **`main.go`**:
-   - Configures routes and database and starts the server.
-2. **Endpoints**:
-   - `GET /tasks`
-   - `POST /tasks`
-   - `PUT /tasks/:id/status`
-   - `DELETE /tasks/:id`
 
 ---
 
