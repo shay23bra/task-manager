@@ -15,15 +15,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Backend: Setup and Test
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
           go-version: 1.22
-        
-      # Debug: Verify Go installation
-      - name: Check Go Version
-        run: go version
       
       - name: Install Dependencies
         working-directory: backend
@@ -37,7 +32,6 @@ jobs:
         working-directory: backend
         run: go vet ./...
 
-      # Frontend: Setup and Test
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -62,10 +56,19 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Build Backend Docker Image
-        working-directory: backend
-        run: docker build -t task-manager-backend .
+        run: |
+          docker build -t shay23bra/task-manager-backend:latest .
+          docker push shay23bra/task-manager-backend:latest
 
       - name: Build Frontend Docker Image
         working-directory: frontend
-        run: docker build -t task-manager-frontend .
+        run: |
+          docker build -t shay23bra/task-manager-frontend:latest .
+          docker push shay23bra/task-manager-frontend:latest
