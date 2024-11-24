@@ -132,6 +132,18 @@ This project is fully containerized using Docker.
    ```bash
    docker-compose up --build
    ```
+   Or run the images pushed to Docker Hub:
+   ```bash
+    # Pull the backend image
+    docker pull shay23bra/task-manager-backend:latest
+
+    # Pull the frontend image
+    docker pull shay23bra/task-manager-frontend:latest
+
+    # Run the services
+    docker run -d -p 8080:8080 --name task-manager-backend shay23bra/task-manager-backend:latest
+    docker run -d -p 3000:80 --name task-manager-frontend shay23bra/task-manager-frontend:latest
+    ```
 
 2. **Access the Services**:
    - Frontend: [http://localhost:3000](http://localhost:3000)
@@ -160,11 +172,12 @@ A CI/CD pipeline is implemented using GitHub Actions.
    - **Linting**:
      - Lints the backend code with `go vet`.
      - Lints the frontend code with `npm run lint`.
-   - **Build**:
+   - **Build and Push**:
      - Builds Docker images for the backend and frontend.
+     - Pushes the Docker images to Docker Hub.
 
 ### **File: .github/workflows/ci.yml**
-The CI pipeline is defined in `.github/workflows/ci.yml` and includes running tests, linting, and building Docker images.
+The CI pipeline is defined in `.github/workflows/ci.yml` and includes running tests, linting, and building and pushing Docker images. (shay23bra/task-manager-backend:latest, shay23bra/task-manager-frontend:latest)
 
 ---
 
