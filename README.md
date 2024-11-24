@@ -202,5 +202,7 @@ Run frontend tests using **Jest** and **React Testing Library**.
    - Add search functionality and status-based filters in the UI.
 4. **Mobile Responsiveness**:
    - Improve styling for smaller screens.
+5. **Packages and Dependencies**:
+   - Use newer versions of packages and dependencies, remove deprecated ones.
 
 ---

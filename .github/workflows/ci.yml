@@ -63,6 +63,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Backend Docker Image
+        working-directory: backend
         run: |
           docker build -t shay23bra/task-manager-backend:latest .
           docker push shay23bra/task-manager-backend:latest
