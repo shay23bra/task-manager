@@ -1,6 +1,6 @@
 module task-manager
 
-go 1.22.7
+go 1.22
 
 require (
 	github.com/gin-contrib/cors v1.7.2
