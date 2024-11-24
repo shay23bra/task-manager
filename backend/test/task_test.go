@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"task-manager/models"
 	"task-manager/routes"
 	"task-manager/utils"
 	"testing"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
@@ -20,7 +22,14 @@ var router *gin.Engine
 
 func setup() {
 	db = utils.InitDB()
+	db.Logger = db.Logger.LogMode(0) // Disable GORM logging during tests
 	router = gin.Default()
+	router.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders: []string{"Content-Type"},
+	}))
+
 	routes.RegisterTaskRoutes(router, db)
 }
 
@@ -58,9 +67,13 @@ func TestGetTaskByID(t *testing.T) {
 		Description: "This is a test task",
 		Status:      "Pending",
 	}
-	db.Create(&task)
+	result := db.Create(&task)
+	t.Logf("ID: %v", task.ID)
+	assert.NoError(t, result.Error)
+	assert.NotZero(t, task.ID, "Task ID should not be zero after creation")
+	assert.NotZero(t, result.RowsAffected, "RowsAffected should be greater than zero")
 
-	req, _ := http.NewRequest("GET", "/tasks/"+string(rune(task.ID)), nil)
+	req, _ := http.NewRequest("GET", "/tasks/"+strconv.Itoa(int(task.ID)), nil)
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
 
@@ -91,7 +104,7 @@ func TestUpdateTask(t *testing.T) {
 	}
 	updateJSON, _ := json.Marshal(update)
 
-	req, _ := http.NewRequest("PUT", "/tasks/"+string(rune(task.ID)), bytes.NewBuffer(updateJSON))
+	req, _ := http.NewRequest("PUT", "/tasks/"+strconv.Itoa(int(task.ID)), bytes.NewBuffer(updateJSON))
 	req.Header.Set("Content-Type", "application/json")
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
@@ -116,7 +129,7 @@ func TestDeleteTask(t *testing.T) {
 	}
 	db.Create(&task)
 
-	req, _ := http.NewRequest("DELETE", "/tasks/"+string(rune(task.ID)), nil)
+	req, _ := http.NewRequest("DELETE", "/tasks/"+strconv.Itoa(int(task.ID)), nil)
 	resp := httptest.NewRecorder()
 	router.ServeHTTP(resp, req)
 
