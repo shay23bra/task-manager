@@ -128,11 +128,8 @@ This project is fully containerized using Docker.
 ### **Steps to Run Using Docker Compose**
 
 1. **Build and Start the Services**:
-   In the root directory of the project (where `docker-compose.yml` is located), run:
-   ```bash
-   docker-compose up --build
-   ```
-   Or run the images pushed to Docker Hub:
+    Currently the images built for amd64.
+    run the images pushed to Docker Hub:
    ```bash
     # Pull the backend image
     docker pull shay23bra/task-manager-backend:latest
@@ -144,6 +141,15 @@ This project is fully containerized using Docker.
     docker run -d -p 8080:8080 --name task-manager-backend shay23bra/task-manager-backend:latest
     docker run -d -p 3000:80 --name task-manager-frontend shay23bra/task-manager-frontend:latest
     ```
+
+   Or, build the images locally:
+   * For mac/linux users: In order to build locally for arm64, in the backend Dockerfile change GOARCH=amd64 to GOARCH=arm64.
+
+   In the root directory of the project (where `docker-compose.yml` is located), run:
+   ```bash
+   docker-compose up --build
+   ```
+   
 
 2. **Access the Services**:
    - Frontend: [http://localhost:3000](http://localhost:3000)
@@ -217,5 +223,7 @@ Run frontend tests using **Jest** and **React Testing Library**.
    - Improve styling for smaller screens.
 5. **Packages and Dependencies**:
    - Use newer versions of packages and dependencies, remove deprecated ones.
+6. **Build and Deployment**:
+    - Use multi-platform build for Docker images - to support both arm64 and amd64.
 
 ---
