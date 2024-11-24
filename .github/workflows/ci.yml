@@ -19,7 +19,11 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: 1.20
+          go-version: 1.22
+        
+      # Debug: Verify Go installation
+      - name: Check Go Version
+        run: go version
       
       - name: Install Dependencies
         working-directory: backend
