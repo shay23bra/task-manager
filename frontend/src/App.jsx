@@ -8,7 +8,11 @@ const App = () => {
   const dropdownRef = useRef(null);
 
   useEffect(() => {
-    getTasks().then((res) => setTasks(res.data));
+    getTasks()
+      .then((res) => setTasks(res.data))
+      .catch((error) => {
+        alert("Network error. Please check your connection and try again.");
+      });
   }, []);
 
   useEffect(() => {
@@ -24,24 +28,45 @@ const App = () => {
     };
   }, []);
 
-  const handleAddTask = (e) => {
+  const handleAddTask = async (e) => {
     e.preventDefault();
     if (!newTask.title || !newTask.description) return;
-    createTask({ ...newTask, status: "Pending" }).then((res) => {
-      setTasks([...tasks, res.data]);
-      setNewTask({ title: "", description: "" });
-    });
+    try {
+      const res = await createTask({ ...newTask, status: "Pending" });
+      if (res.status === 200) {
+        setTasks([...tasks, res.data]);
+        setNewTask({ title: "", description: "" });
+      }
+    } catch (error) {
+      if (error.response) {
+        if (error.response.status === 409) {
+          alert(error.response.data.error || "A task with this name already exists.");
+        } else {
+          alert("Server Error: Please try again later.");
+        }
+      } else {
+        alert("Network error. Please check your connection and try again.");
+      }
+    }
   };
 
   const handleDeleteTask = (id) => {
-    deleteTask(id).then(() => setTasks(tasks.filter((task) => task.id !== id)));
+    deleteTask(id)
+      .then(() => setTasks(tasks.filter((task) => task.id !== id)))
+      .catch((error) => {
+        alert("Server Error: Please try again later.");
+      });
   };
 
   const handleStatusChange = (id, newStatus) => {
-    updateTaskStatus(id, newStatus).then((res) => {
-      setTasks(tasks.map((task) => (task.id === res.data.id ? res.data : task)));
-      setDropdownTaskId(null);
-    });
+    updateTaskStatus(id, newStatus)
+      .then((res) => {
+        setTasks(tasks.map((task) => (task.id === res.data.id ? res.data : task)));
+        setDropdownTaskId(null);
+      })
+      .catch((error) => {
+        alert("Server Error: Please try again later.");
+      });
   };
 
   const toggleDropdown = (id) => {
@@ -83,8 +108,8 @@ const App = () => {
             <div className="task-details">
               <h3>{task.title}</h3>
               <div className="task-details">
-                  <h3 data-title={task.title}>{task.title}</h3>
-                  <div className="status-dropdown" ref={dropdownRef}>
+                <h3 data-title={task.title}>{task.title}</h3>
+                <div className="status-dropdown" ref={dropdownRef}>
                   <span
                     className={`status-label ${task.status.toLowerCase()}`}
                     onClick={() => toggleDropdown(task.id)}

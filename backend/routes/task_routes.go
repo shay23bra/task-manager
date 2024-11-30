@@ -21,6 +21,13 @@ func RegisterTaskRoutes(r *gin.Engine, db *gorm.DB) {
 			c.JSON(400, gin.H{"error": err.Error()})
 			return
 		}
+
+		var existingTask models.Task
+		if err := db.Where("title = ?", task.Title).First(&existingTask).Error; err == nil {
+			c.AbortWithStatusJSON(409, gin.H{"error": "Task with the same title already exists"})
+			return
+		}
+
 		task.CreatedAt = time.Now()
 		db.Create(&task)
 		c.JSON(200, task)
@@ -50,14 +57,16 @@ func RegisterTaskRoutes(r *gin.Engine, db *gorm.DB) {
 			c.JSON(404, gin.H{"error": "Task not found"})
 			return
 		}
-		c.ShouldBindJSON(&task)
+		if err := c.ShouldBindJSON(&task); err != nil {
+			c.JSON(400, gin.H{"error": "Invalid input"})
+			return
+		}
 		db.Save(&task)
 		c.JSON(200, task)
 	})
 
 	r.PUT("/tasks/:id/status", func(c *gin.Context) {
 		var task models.Task
-
 		if err := db.First(&task, c.Param("id")).Error; err != nil {
 			c.JSON(404, gin.H{"error": "Task not found"})
 			return
@@ -87,7 +96,12 @@ func RegisterTaskRoutes(r *gin.Engine, db *gorm.DB) {
 	})
 
 	r.DELETE("/tasks/:id", func(c *gin.Context) {
-		db.Delete(&models.Task{}, c.Param("id"))
+		var task models.Task
+		if err := db.First(&task, c.Param("id")).Error; err != nil {
+			c.JSON(404, gin.H{"error": "Task not found"})
+			return
+		}
+		db.Delete(&task)
 		c.JSON(200, gin.H{"status": "Deleted"})
 	})
 }
